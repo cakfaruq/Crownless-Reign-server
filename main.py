@@ -86,3 +86,21 @@ def upgrade_item(req: UpgradeRequest):
                 item["glow"] = item["upgrade_level"] >= 11
                 return UpgradeResponse(success=False, message=f"Upgrade failed. Item downgraded to +{item['upgrade_level']}")
         return UpgradeResponse(success=False, message="Upgrade failed.")
+from pydantic import BaseModel
+from typing import Dict
+
+# Simpan data player sementara (in-memory)
+players_db: Dict[str, dict] = {}
+
+class Player(BaseModel):
+    player_id: str
+    username: str
+
+@app.post("/register")
+def register_player(player: Player):
+    if player.player_id in players_db:
+        return {"message": "Player already registered"}
+    players_db[player.player_id] = {
+        "username": player.username
+    }
+    return {"message": "Player registered successfully", "player": player}
